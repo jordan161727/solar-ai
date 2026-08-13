@@ -21,6 +21,137 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Installation
+
+### Requirements
+
+- PHP >= 8.2
+- Composer
+- Node.js >= 18 & npm
+- MySQL / MariaDB
+
+### Setup
+
+1. **Clone the repository**
+
+```bash
+git clone <repository-url>
+cd <project-folder>
+```
+
+2. **Install PHP dependencies**
+
+```bash
+composer install
+```
+
+3. **Install JavaScript dependencies**
+
+```bash
+npm install
+```
+
+4. **Create the environment file**
+
+```bash
+cp .env.example .env
+```
+
+   On Windows: `copy .env.example .env`
+
+5. **Generate the application key**
+
+```bash
+php artisan key:generate
+```
+
+6. **Configure the database**
+
+   Open `.env`, set `DB_CONNECTION` to `mysql`, then uncomment the remaining `DB_*` lines
+   (they ship commented out) and fill in your credentials:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+   Create the database first — Laravel will not create it for you:
+
+```sql
+CREATE DATABASE your_database_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+7. **Add your Google API key**
+
+   The property form, satellite previews and roof analysis all call Google. Set this in
+   `.env` or those features will fail:
+
+```env
+GOOGLE_MAPS_API_KEY=your_key_here
+```
+
+   Enable **Places API (New)**, **Maps Static API** and **Solar API** on the key in Google
+   Cloud. Every call is made server-side, so restrict the key by **IP address**, not by
+   HTTP referrer — a referrer restriction rejects server-to-server calls.
+
+   `GOOGLE_SOLAR_API_KEY` and `GOOGLE_PLACES_API_KEY` are optional; both fall back to
+   `GOOGLE_MAPS_API_KEY` when unset.
+
+8. **Run the migrations and seed the demo data**
+
+```bash
+php artisan migrate --seed
+```
+
+   Every page in the app sits behind authentication, so seeding matters: it creates the
+   login below plus sample customers and properties. Without `--seed` the database has no
+   users and you will have to register an account first.
+
+   | Email | Password |
+   | --- | --- |
+   | `admin@solarai.test` | `password` |
+
+9. **Create the storage symlink**
+
+   Required — uploaded roof images are served from the `public` disk.
+
+```bash
+php artisan storage:link
+```
+
+10. **Build the frontend assets**
+
+```bash
+npm run dev
+```
+
+    For production: `npm run build`
+
+11. **Start the development server**
+
+    In a second terminal:
+
+```bash
+php artisan serve
+```
+
+    The app will be available at [http://localhost:8000](http://localhost:8000), which
+    redirects to the login page.
+
+### Useful commands
+
+| Command | Description |
+| --- | --- |
+| `composer dev` | Run the server, queue worker, log viewer and Vite together |
+| `php artisan migrate:fresh --seed` | Drop all tables, re-run migrations, re-seed |
+| `php artisan optimize:clear` | Clear config, route, view and cache files |
+| `php artisan queue:work` | Process queued jobs |
+| `php artisan test` | Run the test suite |
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
