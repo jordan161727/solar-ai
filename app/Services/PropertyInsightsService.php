@@ -8,6 +8,12 @@ use Illuminate\Support\Arr;
 
 class PropertyInsightsService
 {
+    /** Meralco residential rate, PHP per kWh. */
+    public const TARIFF_PER_KWH = 12.0;
+
+    /** PH grid emission factor, kg CO2 per kWh displaced. */
+    public const CO2_KG_PER_KWH = 0.7;
+
     public function __construct(
         private GoogleSolarService $solar,
         private WeatherService $weather,
@@ -46,19 +52,38 @@ class PropertyInsightsService
             ->first() ?? [];
         $sunshine = (float) ($potential['maxSunshineHoursPerYear'] ?? 0);
 
+        $panelWatts = (float) ($potential['panelCapacityWatts'] ?? 400);
+        $maxPanels = (int) ($potential['maxArrayPanelsCount'] ?? data_get($configuration, 'panelsCount', 0));
+        $annualKwh = (float) data_get($configuration, 'yearlyEnergyDcKwh', 0);
+
+        $imageryDate = $solarData['imageryDate'] ?? null;
+
         $property->solarAssessment()->updateOrCreate([], [
             'solar_api_id' => $solarData['name'] ?? null,
             'roof_area' => data_get($potential, 'wholeRoofStats.areaMeters2') ?? data_get($potential, 'maxArrayAreaMeters2'),
             'roof_pitch' => data_get($segment, 'pitchDegrees'),
             'roof_orientation' => data_get($segment, 'azimuthDegrees'),
             'solar_score' => min(100, (int) round(($sunshine / (365 * 5.5)) * 100)),
-            'max_panels' => $potential['maxArrayPanelsCount'] ?? data_get($configuration, 'panelsCount', 0),
-            'system_size_kw' => round(((float) data_get($configuration, 'panelsCount', 0) * 0.45), 2),
-            'annual_generation' => data_get($configuration, 'yearlyEnergyDcKwh', 0),
-            'monthly_generation' => round(((float) data_get($configuration, 'yearlyEnergyDcKwh', 0)) / 12, 2),
-            'estimated_savings' => 0,
-            'co2_offset' => 0,
+            'max_panels' => $maxPanels,
+            'system_size_kw' => round($maxPanels * $panelWatts / 1000, 2),
+            'annual_generation' => $annualKwh,
+            'monthly_generation' => round($annualKwh / 12, 2),
+            'estimated_savings' => round($annualKwh * self::TARIFF_PER_KWH, 2),
+            'co2_offset' => round($annualKwh * self::CO2_KG_PER_KWH, 2),
             'last_synced_at' => now(),
+
+            // Panel geometry for the solar designer.
+            'panel_layout' => $potential['solarPanels'] ?? [],
+            'roof_segments' => $potential['roofSegmentStats'] ?? [],
+            'panel_configs' => $potential['solarPanelConfigs'] ?? [],
+            'panel_width_m' => $potential['panelWidthMeters'] ?? null,
+            'panel_height_m' => $potential['panelHeightMeters'] ?? null,
+            'panel_capacity_w' => $panelWatts,
+            'selected_panel_count' => $maxPanels,
+            'imagery_quality' => $solarData['imageryQuality'] ?? null,
+            'imagery_date' => $imageryDate
+                ? sprintf('%04d-%02d-%02d', $imageryDate['year'] ?? 2000, $imageryDate['month'] ?? 1, $imageryDate['day'] ?? 1)
+                : null,
         ]);
 
         $property->update(['status' => 'Completed']);

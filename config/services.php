@@ -38,5 +38,7 @@ return [
     'google' => [
         'maps_api_key' => env('GOOGLE_MAPS_API_KEY'),
         'solar_api_key' => env('GOOGLE_SOLAR_API_KEY', env('GOOGLE_MAPS_API_KEY')),
+        // Places calls run server-side, so this may be an IP-restricted key.
+        'places_api_key' => env('GOOGLE_PLACES_API_KEY', env('GOOGLE_MAPS_API_KEY')),
     ],
 ];

@@ -1,23 +1,81 @@
-:root{
+/*
+|--------------------------------------------------------------------------
+| Design tokens
+|--------------------------------------------------------------------------
+| Every colour in the UI resolves through one of these variables, so the
+| light/dark switch is a single class on <html> and nothing else.
+|
+| Values are raw "R G B" channels (no rgb() wrapper) so Tailwind can apply
+| opacity modifiers, e.g. bg-accent/10.
+*/
 
-    --primary:#2563EB;
+:root {
+    /* Surfaces */
+    --color-canvas: 248 250 252;
+    --color-surface: 255 255 255;
+    --color-surface-muted: 241 245 249;
+    --color-surface-hover: 248 250 252;
 
-    --secondary:#0EA5E9;
+    /* Lines */
+    --color-border: 226 232 240;
+    --color-border-strong: 203 213 225;
 
-    --success:#10B981;
+    /* Type */
+    --color-content: 15 23 42;
+    --color-content-muted: 100 116 139;
+    --color-content-subtle: 148 163 184;
 
-    --danger:#EF4444;
+    /* Accent — solar amber */
+    --color-accent: 217 119 6;
+    --color-accent-hover: 180 83 9;
+    --color-accent-contrast: 255 255 255;
+    --color-accent-soft: 254 243 199;
 
-    --warning:#F59E0B;
+    /* Status */
+    --color-success: 5 150 105;
+    --color-success-soft: 209 250 229;
+    --color-warning: 217 119 6;
+    --color-warning-soft: 254 243 199;
+    --color-danger: 220 38 38;
+    --color-danger-soft: 254 226 226;
+    --color-info: 37 99 235;
+    --color-info-soft: 219 234 254;
 
-    --background:#030712;
+    /* Elevation — deliberately shallow; depth comes from borders */
+    --shadow-card: 0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06);
+    --shadow-raised: 0 4px 6px -1px rgb(15 23 42 / 0.07), 0 2px 4px -2px rgb(15 23 42 / 0.05);
+    --shadow-overlay: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.08);
+}
 
-    --card:#111827;
+.dark {
+    --color-canvas: 9 12 18;
+    --color-surface: 17 23 32;
+    --color-surface-muted: 26 34 45;
+    --color-surface-hover: 26 34 45;
 
-    --border:#1E293B;
+    --color-border: 33 43 56;
+    --color-border-strong: 51 65 85;
 
-    --text:#F8FAFC;
+    --color-content: 241 245 249;
+    --color-content-muted: 148 163 184;
+    --color-content-subtle: 100 116 139;
 
-    --muted:#94A3B8;
+    /* Amber is lifted on dark so it keeps AA contrast on the surface */
+    --color-accent: 245 158 11;
+    --color-accent-hover: 251 191 36;
+    --color-accent-contrast: 23 16 3;
+    --color-accent-soft: 66 40 8;
 
+    --color-success: 52 211 153;
+    --color-success-soft: 6 46 37;
+    --color-warning: 251 191 36;
+    --color-warning-soft: 61 39 6;
+    --color-danger: 248 113 113;
+    --color-danger-soft: 60 20 20;
+    --color-info: 96 165 250;
+    --color-info-soft: 23 37 66;
+
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 0 rgb(0 0 0 / 0.2);
+    --shadow-raised: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-overlay: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
 }

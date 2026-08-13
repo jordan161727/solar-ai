@@ -1,109 +1,83 @@
 @props(['property'])
 
-<div
-    class="group overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 transition duration-300 hover:-translate-y-2 hover:border-blue-500 hover:shadow-2xl">
+@php
+    $assessment = $property->solarAssessment;
+    $customer = $property->customer;
+    $location = collect([$property->city, $property->province])->filter()->implode(', ') ?: $property->address;
+@endphp
 
-    <div
-        class="relative h-52 bg-gradient-to-br from-blue-600 via-cyan-500 to-indigo-600">
+<div class="card group flex flex-col transition-colors hover:border-line-strong">
 
-        <div
-            class="absolute inset-0 flex items-center justify-center text-7xl">
+    {{-- Head --}}
+    <div class="flex items-start justify-between gap-3 p-5 pb-4">
 
-            🏡
+        <div class="flex min-w-0 items-center gap-3">
+
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-muted">
+                <x-ui.icon name="building" class="h-[18px] w-[18px] text-content-subtle" />
+            </span>
+
+            <div class="min-w-0">
+                <a href="{{ route('properties.show', $property) }}"
+                   class="block truncate rounded text-sm font-medium text-content transition-colors group-hover:text-accent">
+                    {{ $property->property_name ?: 'Untitled property' }}
+                </a>
+
+                <p class="mt-0.5 flex items-center gap-1 truncate text-xs text-content-muted">
+                    <x-ui.icon name="location" class="h-3.5 w-3.5 shrink-0" />
+                    {{ $location }}
+                </p>
+            </div>
 
         </div>
 
-        <div
-            class="absolute top-4 right-4 rounded-full bg-green-500 px-3 py-1 text-xs font-bold text-white">
-
-            VERIFIED
-
-        </div>
+        <x-status-badge :status="$property->status" class="shrink-0" />
 
     </div>
 
-    <div class="p-6">
+    {{-- Metrics --}}
+    <dl class="grid grid-cols-3 gap-3 border-t border-line px-5 py-4">
 
-        <h2 class="text-2xl font-bold text-white">
+        <div>
+            <dt class="text-[11px] text-content-subtle">Score</dt>
+            <dd class="mt-0.5 text-sm font-semibold tabular text-content">
+                {{ $assessment?->solar_score ?? '—' }}
+            </dd>
+        </div>
 
-            {{ $property->address ?? 'Green Valley Residence' }}
+        <div>
+            <dt class="text-[11px] text-content-subtle">Roof area</dt>
+            <dd class="mt-0.5 text-sm font-semibold tabular text-content">
+                {{ $assessment ? number_format($assessment->roof_area).' m²' : '—' }}
+            </dd>
+        </div>
 
-        </h2>
+        <div>
+            <dt class="text-[11px] text-content-subtle">Savings</dt>
+            <dd class="mt-0.5 text-sm font-semibold tabular text-content">
+                {{ $assessment ? '₱'.number_format($assessment->estimated_savings / 1000).'K' : '—' }}
+            </dd>
+        </div>
 
-        <p class="mt-2 text-slate-400">
+    </dl>
 
-            📍 {{ $property->city ?? 'Marilao' }},
-            {{ $property->province ?? 'Bulacan' }},
-               {{ $property->barangay ?? '1' }}
+    {{-- Score bar --}}
+    <div class="px-5">
+        <div class="h-1 overflow-hidden rounded-full bg-surface-muted">
+            <div class="h-full rounded-full bg-accent" style="width:{{ $assessment?->solar_score ?? 0 }}%"></div>
+        </div>
+    </div>
 
+    {{-- Foot --}}
+    <div class="mt-auto flex items-center justify-between gap-3 p-5 pt-4">
+
+        <p class="truncate text-xs text-content-muted">
+            {{ $customer ? trim($customer->first_name.' '.$customer->last_name) : 'No customer' }}
         </p>
 
-        <div class="mt-6 grid grid-cols-2 gap-4">
-
-            <div>
-
-                <p class="text-xs text-slate-500">
-
-                    Solar Score
-
-                </p>
-
-                <p class="text-xl font-bold text-green-400">
-
-                    {{ $property->solar_score ?? 94 }}%
-
-                </p>
-
-            </div>
-
-            <div>
-
-                <p class="text-xs text-slate-500">
-
-                    Roof Area
-
-                </p>
-
-                <p class="text-xl font-bold text-white">
-
-                    {{ $property->roof_area ?? 145 }}㎡
-
-                </p>
-
-            </div>
-
-        </div>
-
-        <div class="mt-6">
-
-            <div
-                class="h-2 overflow-hidden rounded-full bg-slate-700">
-
-                <div
-                    class="h-full w-[94%] rounded-full bg-gradient-to-r from-green-400 to-cyan-400">
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="mt-8 flex gap-3">
-
-            <button
-                class="flex-1 rounded-xl bg-blue-600 py-3 font-semibold text-white hover:bg-blue-500">
-
-                View
-
-            </button>
-
-            <button
-                class="rounded-xl border border-slate-700 px-5 text-white hover:bg-slate-800">
-
-                Edit
-
-            </button>
-
+        <div class="flex shrink-0 gap-2">
+            <a href="{{ route('properties.edit', $property) }}" class="btn btn-secondary btn-sm">Edit</a>
+            <a href="{{ route('properties.show', $property) }}" class="btn btn-primary btn-sm">View</a>
         </div>
 
     </div>

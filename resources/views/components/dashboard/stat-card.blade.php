@@ -1,76 +1,41 @@
 @props([
     'title',
     'value',
-    'change',
-    'icon',
-    'color' => 'blue'
+    'change' => null,
+    'icon' => 'chart',
+    'caption' => 'vs last month',
 ])
 
 @php
-
-$colors = [
-
-    'blue' => 'from-blue-500 to-cyan-500',
-
-    'green' => 'from-green-500 to-emerald-500',
-
-    'yellow' => 'from-yellow-500 to-orange-500',
-
-    'purple' => 'from-purple-500 to-pink-500',
-
-];
-
+    // A leading "-" is the only signal needed to flip direction.
+    $negative = $change !== null && str_starts_with(trim($change), '-');
 @endphp
 
-<div
-    class="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl transition duration-300 hover:-translate-y-2 hover:shadow-2xl">
+<div class="card card-pad">
 
-    <div class="absolute inset-0 opacity-0 group-hover:opacity-10 transition bg-gradient-to-r {{ $colors[$color] }}"></div>
+    <div class="flex items-start justify-between gap-3">
 
-    <div class="relative">
+        <p class="text-sm text-content-muted">{{ $title }}</p>
 
-        <div class="flex items-center justify-between">
-
-            <div>
-
-                <p class="text-slate-400">
-
-                    {{ $title }}
-
-                </p>
-
-                <h2 class="mt-3 text-4xl font-black text-white">
-
-                    {{ $value }}
-
-                </h2>
-
-            </div>
-
-            <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-r {{ $colors[$color] }} text-3xl shadow-lg">
-
-                {{ $icon }}
-
-            </div>
-
-        </div>
-
-        <div class="mt-6 flex items-center justify-between">
-
-            <span class="rounded-full bg-green-500/20 px-3 py-1 text-sm text-green-400">
-
-                {{ $change }}
-
-            </span>
-
-            <span class="text-sm text-slate-500">
-
-                This Month
-
-            </span>
-
-        </div>
+        <x-ui.icon :name="$icon" class="h-4 w-4 shrink-0 text-content-subtle" />
 
     </div>
+
+    <p class="mt-3 text-metric tabular text-content">
+        {{ $value }}
+    </p>
+
+    @if($change)
+        <div class="mt-2 flex items-center gap-1.5">
+
+            <span class="badge {{ $negative ? 'bg-danger-soft text-danger' : 'bg-success-soft text-success' }}">
+                <x-ui.icon :name="$negative ? 'arrow-down' : 'arrow-up'" class="h-3 w-3" />
+                {{ ltrim($change, '+-') }}
+            </span>
+
+            <span class="text-xs text-content-subtle">{{ $caption }}</span>
+
+        </div>
+    @endif
 
 </div>

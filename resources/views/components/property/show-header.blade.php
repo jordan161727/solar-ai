@@ -1,55 +1,56 @@
 @props(['property'])
 
-<div class="rounded-3xl bg-gradient-to-r from-slate-900 via-blue-900 to-cyan-900 p-8 shadow-xl">
+@php
+    $assessment = $property->solarAssessment;
+    $location = collect([$property->address, $property->city, $property->province])
+        ->filter()
+        ->implode(', ');
+@endphp
 
-    <div class="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+<div class="space-y-4">
 
-        <div>
+    <a href="{{ route('properties.index') }}"
+       class="inline-flex items-center gap-1.5 rounded text-sm text-content-muted transition-colors hover:text-content">
+        <x-ui.icon name="arrow-down" class="h-4 w-4 rotate-90" />
+        Back to properties
+    </a>
 
-            <a href="{{ route('properties.index') }}"
-               class="text-slate-300 hover:text-white">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 
-                ← Back to Properties
+        <div class="min-w-0">
 
-            </a>
+            <div class="flex flex-wrap items-center gap-2.5">
+                <h1 class="text-display text-content">
+                    {{ $property->property_name ?: 'Untitled property' }}
+                </h1>
 
-            <h1 class="mt-4 text-4xl font-black text-white">
+                <x-status-badge :status="$property->status" />
+            </div>
 
-                {{ $property->property_name }}
-
-            </h1>
-
-            <p class="mt-2 text-slate-300">
-
-                📍 {{ $property->address }}
-
+            <p class="mt-1.5 flex items-center gap-1.5 text-sm text-content-muted">
+                <x-ui.icon name="location" class="h-4 w-4 shrink-0" />
+                {{ $location ?: 'No address recorded' }}
             </p>
 
         </div>
 
-        <div class="text-right">
+        <div class="flex shrink-0 items-center gap-2">
 
-            <span class="rounded-full bg-green-500/20 px-5 py-2 text-green-300">
+            <a href="{{ route('properties.edit', $property) }}" class="btn btn-secondary btn-md">
+                Edit
+            </a>
 
-                {{ $property->status }}
-
-            </span>
-
-            <div class="mt-4">
-
-                <div class="text-slate-300">
-
-                    AI Solar Score
-
-                </div>
-
-                <div class="text-5xl font-black text-green-400">
-
-                    {{ $property->solar_score }}%
-
-                </div>
-
-            </div>
+            @if($assessment && filled($assessment->panel_layout))
+                <a href="{{ route('solar.design', $property) }}" class="btn btn-primary btn-md">
+                    <x-ui.icon name="sun" class="h-4 w-4" />
+                    Design system
+                </a>
+            @else
+                <button type="button" class="btn btn-primary btn-md">
+                    <x-ui.icon name="sparkles" class="h-4 w-4" />
+                    Run analysis
+                </button>
+            @endif
 
         </div>
 

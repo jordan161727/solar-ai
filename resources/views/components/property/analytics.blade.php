@@ -1,87 +1,69 @@
 @props(['property'])
 
-<div class="rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl p-8">
+@php
+    $a = $property->solarAssessment;
 
-    <h2 class="text-3xl font-black text-white">
+    // 25-year lifetime is the standard panel warranty window used for ROI framing.
+    $lifetimeSavings = $a ? $a->estimated_savings * 25 : null;
+@endphp
 
-        📊 Solar Analytics
+@if($a)
 
-    </h2>
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
 
-    <div class="mt-8 grid gap-6 md:grid-cols-2">
+        <x-dashboard.stat-card
+            title="Annual generation"
+            :value="number_format($a->annual_generation).' kWh'"
+            icon="bolt"
+            :change="null"
+        />
 
-        <div class="rounded-2xl bg-slate-950 p-6 border border-slate-800">
+        <x-dashboard.stat-card
+            title="Annual savings"
+            :value="'₱'.number_format($a->estimated_savings)"
+            icon="card"
+            :change="null"
+        />
 
-            <p class="text-slate-400">Estimated Generation</p>
+        <x-dashboard.stat-card
+            title="CO₂ offset"
+            :value="number_format($a->co2_offset / 1000, 1).' t/yr'"
+            icon="leaf"
+            :change="null"
+        />
 
-            <h2 class="mt-3 text-4xl font-black text-cyan-400">
-
-                12,500
-
-            </h2>
-
-            <p class="text-slate-500">
-
-                kWh / year
-
-            </p>
-
-        </div>
-
-        <div class="rounded-2xl bg-slate-950 p-6 border border-slate-800">
-
-            <p class="text-slate-400">
-
-                Savings
-
-            </p>
-
-            <h2 class="mt-3 text-4xl font-black text-green-400">
-
-                ₱2.4M
-
-            </h2>
-
-            <p class="text-slate-500">
-
-                Lifetime
-
-            </p>
-
-        </div>
-
-        <div class="rounded-2xl bg-slate-950 p-6 border border-slate-800">
-
-            <p class="text-slate-400">
-
-                CO₂ Reduction
-
-            </p>
-
-            <h2 class="mt-3 text-4xl font-black text-emerald-400">
-
-                15 Tons
-
-            </h2>
-
-        </div>
-
-        <div class="rounded-2xl bg-slate-950 p-6 border border-slate-800">
-
-            <p class="text-slate-400">
-
-                Return on Investment
-
-            </p>
-
-            <h2 class="mt-3 text-4xl font-black text-orange-400">
-
-                5.3 Years
-
-            </h2>
-
-        </div>
+        <x-dashboard.stat-card
+            title="25-year value"
+            :value="'₱'.number_format($lifetimeSavings / 1_000_000, 1).'M'"
+            icon="chart"
+            :change="null"
+        />
 
     </div>
 
-</div>
+@else
+
+    <div class="card flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between">
+
+        <div class="flex items-center gap-3">
+
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-soft">
+                <x-ui.icon name="sparkles" class="h-[18px] w-[18px] text-accent" />
+            </span>
+
+            <div>
+                <p class="text-sm font-medium text-content">No solar assessment yet</p>
+                <p class="mt-0.5 text-sm text-content-muted">
+                    Run an analysis to generate roof, generation and savings figures.
+                </p>
+            </div>
+
+        </div>
+
+        <button type="button" class="btn btn-primary btn-md shrink-0">
+            Run analysis
+        </button>
+
+    </div>
+
+@endif

@@ -1,50 +1,73 @@
-﻿<x-app-layout>
-    
-<div class="mx-auto max-w-7xl py-8 space-y-8">
+<x-app-layout title="New property">
 
-    <x-property.header
-        title="New Property"
-        description="Register a property for solar assessment." />
+@php
+    $steps = [
+        1 => 'Owner',
+        2 => 'Property',
+        3 => 'Address',
+        4 => 'Map',
+        5 => 'Review',
+    ];
+
+    // Jump straight to the step that failed validation.
+    $initialStep = (int) old('current_step', 1);
+
+    if ($errors->any()) {
+        $initialStep = 1;
+
+        if ($errors->hasAny(['property_name', 'status'])) {
+            $initialStep = 2;
+        }
+
+        if ($errors->hasAny(['address', 'city', 'province', 'postal_code', 'country'])) {
+            $initialStep = 3;
+        }
+
+        if ($errors->hasAny(['latitude', 'longitude', 'place_id'])) {
+            $initialStep = 4;
+        }
+
+        if ($errors->hasAny(['owner_name', 'email', 'phone'])) {
+            $initialStep = 1;
+        }
+    }
+@endphp
+
+<div class="mx-auto max-w-4xl space-y-5">
+
+    {{-- Header --}}
+    <div>
+        <a href="{{ route('properties.index') }}"
+           class="inline-flex items-center gap-1.5 rounded text-sm text-content-muted transition-colors hover:text-content">
+            <x-ui.icon name="arrow-down" class="h-4 w-4 rotate-90" />
+            Back to properties
+        </a>
+
+        <h1 class="mt-3 text-display text-content">New property</h1>
+
+        <p class="mt-1 text-sm text-content-muted">
+            Register a property so it can be assessed for solar potential.
+        </p>
+    </div>
 
     @if ($errors->any())
-        <div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-6">
-            <div class="font-semibold text-red-400">
-                ❌ Please fix the following errors:
-            </div>
+        <div class="rounded-xl border border-danger/25 bg-danger-soft px-4 py-3">
 
-            <ul class="mt-3 space-y-1 text-red-300">
+            <p class="text-sm font-medium text-danger">
+                Please fix {{ $errors->count() }} {{ Str::plural('error', $errors->count()) }} before continuing.
+            </p>
+
+            <ul class="mt-1.5 list-disc space-y-0.5 pl-4 text-sm text-danger">
                 @foreach ($errors->all() as $error)
-                    <li>• {{ $error }}</li>
+                    <li>{{ $error }}</li>
                 @endforeach
             </ul>
+
         </div>
     @endif
 
-    @php
-        $initialStep = (int) old('current_step', 1);
-
-        if ($errors->any()) {
-            $initialStep = max($initialStep, 1);
-
-            if ($errors->hasAny(['latitude', 'longitude', 'place_id'])) {
-                $initialStep = max($initialStep, 4);
-            }
-
-            if ($errors->hasAny(['address', 'city', 'province', 'postal_code', 'country'])) {
-                $initialStep = max($initialStep, 3);
-            }
-
-            if ($errors->hasAny(['property_name', 'status'])) {
-                $initialStep = max($initialStep, 2);
-            }
-
-            if ($errors->hasAny(['owner_name', 'email', 'phone'])) {
-                $initialStep = max($initialStep, 1);
-            }
-        }
-    @endphp
-
-    <div x-data="propertyWizard({
+    <div
+        x-data="propertyWizard({
             initialStep: {{ $initialStep }},
             initialOwnerName: {{ json_encode(old('owner_name')) }},
             initialEmail: {{ json_encode(old('email')) }},
@@ -59,242 +82,93 @@
             initialLatitude: {{ json_encode(old('latitude')) }},
             initialLongitude: {{ json_encode(old('longitude')) }},
             initialPlaceId: {{ json_encode(old('place_id')) }},
-        })" x-on:property-location-selected.window="applyLocation($event.detail)" x-cloak>
-        <style>[x-cloak]{display:none!important;}</style>
+            mapImageUrl: {{ json_encode(route('map.image')) }},
+        })"
+        x-on:property-location-selected.window="applyLocation($event.detail)"
+        class="space-y-5"
+    >
 
-        <div class="flex flex-col gap-6">
-            <div>
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Property setup
-                </p>
-                <h2 class="mt-2 text-3xl font-black text-white">
-                    Follow the steps to create a new property
-                </h2>
-            </div>
+        {{-- Stepper --}}
+        <ol class="flex items-center gap-2 overflow-x-auto pb-1">
 
-            <div class="relative flex items-center gap-4 overflow-x-auto pb-4">
-                <div class="flex w-full items-center gap-4">
-                    <button
-                        type="button"
-                        disabled
-                        :class="step === 1 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'"
-                        class="flex items-center gap-3 rounded-3xl px-5 py-4 shadow-xl transition">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-slate-950 text-lg font-bold">1</div>
-                        <div>
-                            <div class="text-xs uppercase tracking-[0.2em] text-slate-200">Step 1</div>
-                            <div class="text-sm font-semibold">Owner</div>
-                        </div>
-                    </button>
+            @foreach($steps as $number => $label)
+                <li class="flex shrink-0 items-center gap-2">
 
-                    <div class="hidden h-0.5 flex-1 bg-slate-700 md:block"></div>
+                    <div class="flex items-center gap-2">
 
-                    <button
-                        type="button"
-                        disabled
-                        :class="step === 2 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'"
-                        class="flex items-center gap-3 rounded-3xl px-5 py-4 transition">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 text-lg font-bold">2</div>
-                        <div>
-                            <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Step 2</div>
-                            <div class="text-sm font-semibold">Property</div>
-                        </div>
-                    </button>
+                        <span
+                            class="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-medium transition-colors"
+                            x-bind:class="step === {{ $number }}
+                                ? 'bg-accent text-accent-contrast'
+                                : (step > {{ $number }}
+                                    ? 'bg-accent-soft text-accent'
+                                    : 'bg-surface-muted text-content-subtle')"
+                        >{{ $number }}</span>
 
-                    <div class="hidden h-0.5 flex-1 bg-slate-700 md:block"></div>
+                        <span
+                            class="text-sm transition-colors"
+                            x-bind:class="step >= {{ $number }} ? 'font-medium text-content' : 'text-content-subtle'"
+                        >{{ $label }}</span>
 
-                    <button
-                        type="button"
-                        disabled
-                        :class="step === 3 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'"
-                        class="flex items-center gap-3 rounded-3xl px-5 py-4 transition">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 text-lg font-bold">3</div>
-                        <div>
-                            <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Step 3</div>
-                            <div class="text-sm font-semibold">Address</div>
-                        </div>
-                    </button>
+                    </div>
 
-                    <div class="hidden h-0.5 flex-1 bg-slate-700 md:block"></div>
+                    @unless($loop->last)
+                        <span class="ml-1 hidden h-px w-8 bg-line sm:block"></span>
+                    @endunless
 
-                    <button
-                        type="button"
-                        disabled
-                        :class="step === 4 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'"
-                        class="flex items-center gap-3 rounded-3xl px-5 py-4 transition">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 text-lg font-bold">4</div>
-                        <div>
-                            <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Step 4</div>
-                            <div class="text-sm font-semibold">Map</div>
-                        </div>
-                    </button>
+                </li>
+            @endforeach
 
-                    <div class="hidden h-0.5 flex-1 bg-slate-700 md:block"></div>
-
-                    <button
-                        type="button"
-                        disabled
-                        :class="step === 5 ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'"
-                        class="flex items-center gap-3 rounded-3xl px-5 py-4 transition">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 text-lg font-bold">5</div>
-                        <div>
-                            <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Step 5</div>
-                            <div class="text-sm font-semibold">Save</div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </div>
+        </ol>
 
         <form
             method="POST"
             action="{{ route('properties.store') }}"
             enctype="multipart/form-data"
-            class="space-y-8">
+            class="space-y-4"
+        >
 
             @csrf
             <input type="hidden" name="current_step" x-model="step" />
 
-            <div data-property-wizard-panel="1" x-show.important="step === 1">
-                <x-property.owner-section />
-                 <div class="mt-6 flex justify-end">
-                    <button type="button" @click="next()"
-                        class="rounded-2xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500">
-                        Continue
-                    </button>
-                </div> 
-            </div>
+            @foreach($steps as $number => $label)
 
-            <div data-property-wizard-panel="2" x-show.important="step === 2" hidden>
-                <x-property.property-section />
-                <div class="flex justify-between gap-4 pt-6">
-                    <button
-                        type="button"
-                        @click="prev()"
-                        class="rounded-2xl border border-slate-700 px-8 py-4 text-white transition hover:bg-slate-800">
-                        Back
-                    </button>
-                    <button
-                        type="button"
-                        @click="next()"
-                        class="rounded-2xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500">
-                        Continue
-                    </button>
-                </div>
-            </div>
+                <div data-property-wizard-panel="{{ $number }}"
+                     x-show.important="step === {{ $number }}"
+                     @if($number !== 1) hidden @endif>
 
-            <div data-property-wizard-panel="3" x-show.important="step === 3" hidden>
-                <x-property.location-section />
-                <div class="flex justify-between gap-4 pt-6">
-                    <button
-                        type="button"
-                        @click="prev()"
-                        class="rounded-2xl border border-slate-700 px-8 py-4 text-white transition hover:bg-slate-800">
-                        Back
-                    </button>
-                    <button
-                        type="button"
-                        @click="next()"
-                        class="rounded-2xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500">
-                        Continue
-                    </button>
-                </div>
-            </div>
+                    @switch($number)
+                        @case(1) <x-property.owner-section /> @break
+                        @case(2) <x-property.property-section /> @break
+                        @case(3) <x-property.location-section /> @break
+                        @case(4) <x-property.map-section /> @break
+                        @case(5) <x-property.review-section /> @break
+                    @endswitch
 
-            <div data-property-wizard-panel="4" x-show.important="step === 4" hidden>
-                <x-property.map-section />
-                <div class="flex justify-between gap-4 mt-6">
-                    <button
-                        type="button"
-                        @click="prev()"
-                        class="rounded-2xl border border-slate-700 px-8 py-4 text-white transition hover:bg-slate-800">
-                        Back
-                    </button>
-                    <button
-                        type="button"
-                        @click="next()"
-                        class="rounded-2xl bg-blue-600 px-8 py-4 font-semibold text-white transition hover:bg-blue-500">
-                        Review
-                    </button>
-                </div>
-            </div>
+                    <div class="mt-4 flex items-center justify-between gap-3">
 
-            <div data-property-wizard-panel="5" x-show.important="step === 5" hidden>
-                <x-property.review-section />
-                <div class="flex justify-between gap-4 mt-6">
-                    <button
-                        type="button"
-                        @click="prev()"
-                        class="rounded-2xl border border-slate-700 px-8 py-4 text-white transition hover:bg-slate-800">
-                        Back
-                    </button>
-                    <button
-                        type="submit"
-                        class="rounded-2xl bg-blue-600 px-10 py-4 font-bold text-white transition hover:bg-blue-500">
-                        🚀 Create Property
-                    </button>
+                        @if($number === 1)
+                            <a href="{{ route('properties.index') }}" class="btn btn-ghost btn-md">Cancel</a>
+                        @else
+                            <button type="button" x-on:click="prev()" class="btn btn-secondary btn-md">Back</button>
+                        @endif
+
+                        @if($number === 5)
+                            <button type="submit" class="btn btn-primary btn-md">Create property</button>
+                        @else
+                            <button type="button" x-on:click="next()" class="btn btn-primary btn-md">Continue</button>
+                        @endif
+
+                    </div>
+
                 </div>
-            </div>
+
+            @endforeach
+
         </form>
+
     </div>
 
 </div>
 
-
-
-<script>
-    // The active wizard implementation lives in resources/js/app.js.
-    // Keep this legacy helper isolated so it cannot overwrite Alpine's global.
-    function legacyPropertyWizard(config) {
-        return {
-            step: config.initialStep || 1,
-            ownerName: config.initialOwnerName || '',
-            ownerEmail: config.initialEmail || '',
-            ownerPhone: config.initialPhone || '',
-            propertyName: config.initialPropertyName || '',
-            status: config.initialStatus || 'Pending',
-            address: config.initialAddress || '',
-            city: config.initialCity || '',
-            province: config.initialProvince || '',
-            postal_code: config.initialPostalCode || '',
-            country: config.initialCountry || 'Philippines',
-            latitude: config.initialLatitude || '',
-            longitude: config.initialLongitude || '',
-            placeId: config.initialPlaceId || '',
-            mapMessage: 'Ready for API lookup.',
-            next() {
-                this.step = Math.min(this.step + 1, 5);
-            },
-            prev() {
-                this.step = Math.max(this.step - 1, 1);
-            },
-            lookupCoordinates() {
-                if (!this.address) {
-                    this.mapMessage = 'Enter the address in step 3 first.';
-                    return;
-                }
-                this.mapMessage = 'API lookup stub: replace with your address lookup integration.';
-
-                // Example integration stub:
-                // axios.post('/api/geocode', { address: this.address })
-                //      .then(response => {
-                //          this.latitude = response.data.latitude;
-                //          this.longitude = response.data.longitude;
-                //          this.placeId = response.data.place_id;
-                //          this.mapMessage = 'Location loaded from API.';
-                //      });
-            },
-            applyLocation(location) {
-                this.address = location.address || this.address;
-                this.city = location.city || '';
-                this.province = location.province || '';
-                this.postal_code = location.postalCode || '';
-                this.country = location.country || 'Philippines';
-                this.latitude = location.latitude;
-                this.longitude = location.longitude;
-                this.placeId = location.placeId || '';
-                this.mapMessage = 'Location selected. Solar and weather data will be fetched when you save.';
-            },
-        };
-    }
-</script>
 </x-app-layout>

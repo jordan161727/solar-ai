@@ -1,34 +1,30 @@
-<x-app-layout>
+<x-app-layout title="Properties">
 
-    <div class="space-y-8">
+    <div class="space-y-5">
 
-        <x-property.header />
+        <x-property.header :total="$stats['totalProperties']" />
 
-        <x-property.search />
+        <x-property.stats :stats="$stats" />
 
-        <x-property.stats />
+        <x-property.search :search="$search" :status="$status" />
 
-        <x-property.filters />
+        @if($properties->isEmpty())
 
-        <div class="grid gap-8 sm:grid-cols-2 xl:grid-cols-3">
+            <x-property.empty-state :filtered="$search !== '' || $status" />
 
-            @forelse($properties as $property)
+        @else
 
-                <x-property.card :property="$property"/>
+            <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
 
-            @empty
+                @foreach($properties as $property)
+                    <x-property.card :property="$property" />
+                @endforeach
 
-                <div class="col-span-full">
+            </div>
 
-                 <x-property.empty-state />
+            <x-property.pagination :properties="$properties" />
 
-                </div>
-
-            @endforelse
-
-        </div>
-
-        <x-property.pagination :properties="$properties"/>
+        @endif
 
     </div>
 

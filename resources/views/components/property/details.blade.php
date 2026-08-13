@@ -1,169 +1,75 @@
 @props(['property'])
 
-<div class="rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden">
+@php
+    $customer = $property->customer;
+    $a = $property->solarAssessment;
 
-    <!-- Header -->
-    <div class="border-b border-slate-800 bg-gradient-to-r from-slate-900 to-slate-800 p-6">
+    $ownerName = $customer ? trim($customer->first_name.' '.$customer->last_name) : null;
+@endphp
 
-        <div class="flex items-center justify-between">
+<div class="card overflow-hidden">
 
-            <div>
+    <div class="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
 
-                <h2 class="text-3xl font-black text-white">
-                    🏡 Property Information
-                </h2>
+        <h2 class="text-sm font-medium text-content">Property information</h2>
 
-                <p class="mt-2 text-slate-400">
-                    Complete information about this property.
-                </p>
-
-            </div>
-
-            <div class="rounded-2xl bg-blue-600/20 px-5 py-3">
-
-                <span class="text-sm text-blue-300">
-                    Property ID
-                </span>
-
-                <h3 class="mt-1 text-xl font-bold text-white">
-                    #{{ $property->id }}
-                </h3>
-
-            </div>
-
-        </div>
+        <span class="text-xs text-content-subtle tabular">ID #{{ $property->id }}</span>
 
     </div>
 
-    <!-- Body -->
-    <div class="p-8 space-y-8">
+    <div class="divide-y divide-line">
 
-        <!-- Owner -->
-        <div>
+        {{-- Owner --}}
+        <section class="px-5 py-4">
 
-            <h3 class="mb-5 text-xl font-bold text-cyan-400 flex items-center gap-2">
-                👤 Owner Information
-            </h3>
+            <p class="eyebrow">Owner</p>
 
-            <div class="grid gap-5 md:grid-cols-2">
+            <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+                <x-property.info-item label="Name" :value="$ownerName" />
+                <x-property.info-item label="Email" :value="$customer?->email" />
+                <x-property.info-item label="Phone" :value="$customer?->phone" />
+                <x-property.info-item label="Status" :value="$property->status" />
+            </dl>
 
-                <x-property.info-item
-                    label="Owner Name"
-                    :value="$property->customer?->first_name . ' ' . $property->customer?->last_name ?? $property->owner_name ?? 'Juan Dela Cruz'"
-                    icon="👤"/>
+        </section>
 
-                <x-property.info-item
-                    label="Email"
-                    :value="$property->customer?->email ?? $property->email ?? 'owner@email.com'"
-                    icon="📧"/>
+        {{-- Location --}}
+        <section class="px-5 py-4">
 
-                <x-property.info-item
-                    label="Phone"
-                    :value="$property->customer?->phone ?? $property->phone ?? '+63 912 345 6789'"
-                    icon="📱"/>
+            <p class="eyebrow">Location</p>
 
-                <x-property.info-item
-                    label="Status"
-                    :value="$property->status ?? 'Verified'"
-                    icon="✅"/>
+            <dl class="mt-3 grid gap-4 sm:grid-cols-2">
+                <x-property.info-item label="Address" :value="$property->address" />
+                <x-property.info-item label="City" :value="$property->city" />
+                <x-property.info-item label="Province" :value="$property->province" />
+                <x-property.info-item label="Postal code" :value="$property->postal_code" />
+                <x-property.info-item label="Country" :value="$property->country" />
+                <x-property.info-item label="Added" :value="$property->created_at?->format('j F Y')" />
+            </dl>
 
-            </div>
+        </section>
 
-        </div>
+        {{-- Roof --}}
+        <section class="px-5 py-4">
 
-        <!-- Property -->
-        <div>
+            <p class="eyebrow">Roof</p>
 
-            <h3 class="mb-5 text-xl font-bold text-green-400 flex items-center gap-2">
-                🏠 Property Details
-            </h3>
+            @if($a)
+                <dl class="mt-3 grid gap-4 sm:grid-cols-3">
+                    <x-property.info-item label="Type" :value="$a->roof_type" />
+                    <x-property.info-item label="Area" :value="number_format($a->roof_area).' m²'" />
+                    <x-property.info-item label="Pitch" :value="number_format($a->roof_pitch, 1).'°'" />
+                    <x-property.info-item label="Orientation" :value="number_format($a->roof_orientation).'°'" />
+                    <x-property.info-item label="Max panels" :value="number_format($a->max_panels)" />
+                    <x-property.info-item label="System size" :value="number_format($a->system_size_kw, 2).' kW'" />
+                </dl>
+            @else
+                <p class="mt-2 text-sm text-content-muted">
+                    Roof data appears once an assessment has been run.
+                </p>
+            @endif
 
-            <div class="grid gap-5 md:grid-cols-2">
-
-                <x-property.info-item
-                    label="Property Name"
-                    :value="$property->property_name"
-                    icon="🏡"/>
-
-                <x-property.info-item
-                    label="Property Type"
-                    :value="$property->property_type"
-                    icon="🏢"/>
-
-                <x-property.info-item
-                    label="City"
-                    :value="$property->city"
-                    icon="📍"/>
-
-                <x-property.info-item
-                    label="Province"
-                    :value="$property->province"
-                    icon="🌎"/>
-
-            </div>
-
-        </div>
-
-        <!-- Roof -->
-        <div>
-
-            <h3 class="mb-5 text-xl font-bold text-yellow-400 flex items-center gap-2">
-                ☀ Roof Information
-            </h3>
-
-            <div class="grid gap-5 md:grid-cols-3">
-
-                <x-property.info-item
-                    label="Roof Area"
-                    :value="($property->roof_area ?? 145).' m²'"
-                    icon="📐"/>
-
-                <x-property.info-item
-                    label="Roof Pitch"
-                    :value="($property->roof_pitch ?? 25).'°'"
-                    icon="📏"/>
-
-                <x-property.info-item
-                    label="Roof Material"
-                    :value="$property->roof_material ?? 'Metal'"
-                    icon="🧱"/>
-
-            </div>
-
-        </div>
-
-        <!-- Solar -->
-        <div>
-
-            <h3 class="mb-5 text-xl font-bold text-orange-400 flex items-center gap-2">
-                ⚡ Solar Analysis
-            </h3>
-
-            <div class="grid gap-5 md:grid-cols-2">
-
-                <x-property.info-item
-                    label="Solar Score"
-                    :value="($property->solar_score ?? 94).'%'"
-                    icon="☀️"/>
-
-                <x-property.info-item
-                    label="Estimated Savings"
-                    :value="'₱ '.number_format($property->estimated_savings ?? 2400000)"
-                    icon="💰"/>
-
-                <x-property.info-item
-                    label="Energy Production"
-                    :value="($property->estimated_generation ?? 12500).' kWh'"
-                    icon="⚡"/>
-
-                <x-property.info-item
-                    label="Created"
-                    :value="$property->created_at?->format('F d, Y') ?? now()->format('F d, Y')"
-                    icon="📅"/>
-
-            </div>
-
-        </div>
+        </section>
 
     </div>
 

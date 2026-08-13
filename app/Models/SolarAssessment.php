@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class SolarAssessment extends Model
 {
+    use HasFactory;
+
    protected $fillable = [
 
         'property_id',
@@ -37,6 +39,24 @@ class SolarAssessment extends Model
 
         'last_synced_at',
 
+        'panel_layout',
+
+        'roof_segments',
+
+        'panel_configs',
+
+        'panel_width_m',
+
+        'panel_height_m',
+
+        'panel_capacity_w',
+
+        'selected_panel_count',
+
+        'imagery_quality',
+
+        'imagery_date',
+
     ];
 
     protected $casts = [
@@ -59,7 +79,41 @@ class SolarAssessment extends Model
 
         'last_synced_at' => 'datetime',
 
+        'panel_layout' => 'array',
+
+        'roof_segments' => 'array',
+
+        'panel_configs' => 'array',
+
+        'panel_width_m' => 'float',
+
+        'panel_height_m' => 'float',
+
+        'imagery_date' => 'date',
+
     ];
+
+    /**
+     * Google returns panels sorted by yearly yield, best first, so a system of
+     * N panels is simply the first N entries.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function panelsForCount(int $count): array
+    {
+        return array_slice($this->panel_layout ?? [], 0, max($count, 0));
+    }
+
+    /**
+     * The config Google pre-computed for a given panel count, if any.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function configForCount(int $count): ?array
+    {
+        return collect($this->panel_configs ?? [])
+            ->first(fn (array $config) => (int) ($config['panelsCount'] ?? 0) === $count);
+    }
 
     /**
      * Property relationship

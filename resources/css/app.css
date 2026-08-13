@@ -1,12 +1,102 @@
+@import "./theme.css";
+@import "./animation.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
 
-@import "./theme.css";
-@import "./sidebar.css";
-@import "./navbar.css";
-@import "./cards.css";
-@import "./animation.css";
-@import "./dashboard.css";
-@import "./dashboard.css";
+    /* Hide Alpine-controlled elements until Alpine boots. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-canvas text-content antialiased;
+        font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    /* Numbers in tables and metrics must align across rows. */
+    .tabular {
+        font-variant-numeric: tabular-nums;
+    }
+
+    :focus-visible {
+        @apply outline-none ring-2 ring-accent/60 ring-offset-2 ring-offset-canvas;
+    }
+
+    ::selection {
+        @apply bg-accent/20 text-content;
+    }
+
+    /* Scrollbars follow the theme instead of flashing white in dark mode. */
+    * {
+        scrollbar-color: rgb(var(--color-border-strong)) transparent;
+        scrollbar-width: thin;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        @apply rounded-full border-[3px] border-solid border-transparent;
+        background-clip: content-box;
+        background-color: rgb(var(--color-border-strong));
+    }
+}
+
+@layer components {
+    .card {
+        @apply rounded-xl border border-line bg-surface shadow-card;
+    }
+
+    .card-pad {
+        @apply p-5;
+    }
+
+    /* Section label above a group of cards. */
+    .eyebrow {
+        @apply text-[11px] font-medium uppercase tracking-wider text-content-subtle;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border text-sm font-medium
+               transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .btn-sm { @apply h-8 px-3; }
+    .btn-md { @apply h-9 px-3.5; }
+    .btn-lg { @apply h-11 px-5; }
+
+    .btn-primary {
+        @apply border-transparent bg-accent text-accent-contrast hover:bg-accent-hover;
+    }
+
+    .btn-secondary {
+        @apply border-line bg-surface text-content hover:bg-surface-muted;
+    }
+
+    .btn-ghost {
+        @apply border-transparent bg-transparent text-content-muted hover:bg-surface-muted hover:text-content;
+    }
+
+    .input {
+        @apply block w-full rounded-lg border-line bg-surface px-3 py-2 text-sm text-content
+               placeholder:text-content-subtle
+               focus:border-accent focus:ring-1 focus:ring-accent;
+    }
+
+    .badge {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium;
+    }
+}

@@ -1,29 +1,36 @@
-<div class="rounded-3xl border border-slate-800 bg-slate-900 shadow-xl">
-    <div class="border-b border-slate-800 p-6">
-        <h2 class="text-2xl font-bold text-white">✅ Review Property</h2>
-        <p class="mt-2 text-slate-400">Confirm the entered details before creating the property.</p>
-    </div>
+<x-property.section
+    title="Review"
+    description="Check the details before creating the property."
+>
 
-    <div class="p-6 space-y-6">
-        <div class="rounded-3xl border border-slate-700 bg-slate-950 p-6">
-            <h3 class="text-lg font-semibold text-white">Owner</h3>
-            <p class="mt-3 text-slate-300" x-text="ownerName || 'No owner name provided'"></p>
-            <p class="text-sm text-slate-500" x-text="ownerEmail || 'No email provided'"></p>
-            <p class="text-sm text-slate-500" x-text="ownerPhone || 'No phone provided'"></p>
-        </div>
+    <dl class="divide-y divide-line">
 
-        <div class="rounded-3xl border border-slate-700 bg-slate-950 p-6">
-            <h3 class="text-lg font-semibold text-white">Property</h3>
-            <p class="mt-3 text-slate-300" x-text="propertyName || 'No property name provided'"></p>
-            <p class="text-sm text-slate-500" x-text="`Status: ${status || 'Pending'}`"></p>
-        </div>
+        @php
+            // [label, Alpine expression] — values mirror the wizard state live.
+            $rows = [
+                ['Owner', "ownerName || 'Not provided'"],
+                ['Email', "ownerEmail || 'Not provided'"],
+                ['Phone', "ownerPhone || 'Not provided'"],
+                ['Property name', "propertyName || 'Not provided'"],
+                ['Status', "status || 'Pending'"],
+                ['Address', "address || 'Not provided'"],
+                ['City / Province', "[city, province].filter(Boolean).join(', ') || 'Not provided'"],
+                ['Postal code', "postal_code || 'Not provided'"],
+                ['Country', "country || 'Philippines'"],
+                // Plain concatenation, not a template literal — PHP would
+                // interpolate ${...} inside a double-quoted string.
+                ['Coordinates', "(latitude && longitude) ? latitude + ', ' + longitude : 'Not set'"],
+            ];
+        @endphp
 
-        <div class="rounded-3xl border border-slate-700 bg-slate-950 p-6">
-            <h3 class="text-lg font-semibold text-white">Address</h3>
-            <p class="mt-3 text-slate-300" x-text="address || 'No address entered'"></p>
-            <p class="text-sm text-slate-500" x-text="`${city || '—'}, ${province || '—'} ${postal_code || ''}`"></p>
-            <p class="text-sm text-slate-500" x-text="country || 'Philippines'"></p>
-            <p class="text-sm text-slate-500" x-text="`Lat: ${latitude || 'unset'} | Lng: ${longitude || 'unset'}`"></p>
-        </div>
-    </div>
-</div>
+        @foreach($rows as [$label, $expression])
+            <div class="flex items-baseline justify-between gap-4 py-2.5 first:pt-0 last:pb-0">
+                <dt class="shrink-0 text-sm text-content-muted">{{ $label }}</dt>
+                <dd class="min-w-0 break-words text-right text-sm font-medium text-content"
+                    x-text="{{ $expression }}"></dd>
+            </div>
+        @endforeach
+
+    </dl>
+
+</x-property.section>

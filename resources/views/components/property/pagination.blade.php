@@ -1,27 +1,33 @@
-<div class="flex items-center justify-between">
+@props(['properties'])
 
-    <p class="text-slate-400">
+@if($properties->hasPages())
 
-        Showing 1–6 of 1284 properties
+    <div class="flex items-center justify-between gap-4">
 
-    </p>
+        <p class="text-sm text-content-muted">
+            Showing
+            <span class="font-medium text-content tabular">{{ $properties->firstItem() }}</span>–<span
+                class="font-medium text-content tabular">{{ $properties->lastItem() }}</span>
+            of
+            <span class="font-medium text-content tabular">{{ number_format($properties->total()) }}</span>
+        </p>
 
-    <div class="flex gap-3">
+        <div class="flex gap-2">
 
-        <button
-            class="rounded-xl border border-slate-700 bg-slate-900 px-5 py-2 text-white">
+            @if($properties->onFirstPage())
+                <span class="btn btn-secondary btn-sm cursor-not-allowed opacity-50">Previous</span>
+            @else
+                <a href="{{ $properties->previousPageUrl() }}" rel="prev" class="btn btn-secondary btn-sm">Previous</a>
+            @endif
 
-            Previous
+            @if($properties->hasMorePages())
+                <a href="{{ $properties->nextPageUrl() }}" rel="next" class="btn btn-secondary btn-sm">Next</a>
+            @else
+                <span class="btn btn-secondary btn-sm cursor-not-allowed opacity-50">Next</span>
+            @endif
 
-        </button>
-
-        <button
-            class="rounded-xl bg-blue-600 px-5 py-2 text-white">
-
-            Next
-
-        </button>
+        </div>
 
     </div>
 
-</div>
+@endif

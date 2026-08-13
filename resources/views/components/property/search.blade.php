@@ -1,49 +1,77 @@
-<div
-    class="rounded-3xl border border-slate-800 bg-slate-900 p-6">
+@props([
+    'search' => '',
+    'status' => null,
+])
 
-    <div
-        class="flex flex-col gap-4 lg:flex-row">
+@php
+    $tabs = [
+        ['label' => 'All', 'value' => null],
+        ['label' => 'Pending', 'value' => 'Pending'],
+        ['label' => 'Analyzing', 'value' => 'Analyzing'],
+        ['label' => 'Completed', 'value' => 'Completed'],
+    ];
+@endphp
 
-        <div class="relative flex-1">
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
-            <svg
-                class="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
+    {{-- Status filter — plain links so the state stays in the URL and is shareable --}}
+    <div class="flex flex-wrap items-center gap-1 rounded-lg border border-line bg-surface p-1">
 
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0a7 7 0 0114 0z"/>
+        @foreach($tabs as $tab)
+            @php
+                $active = $status === $tab['value'];
+                $query = array_filter([
+                    'q' => $search !== '' ? $search : null,
+                    'status' => $tab['value'],
+                ]);
+            @endphp
 
-            </svg>
+            <a
+                href="{{ route('properties.index', $query) }}"
+                @if($active) aria-current="page" @endif
+                class="rounded-md px-3 py-1.5 text-sm font-medium transition-colors
+                       {{ $active
+                            ? 'bg-accent-soft text-accent'
+                            : 'text-content-muted hover:bg-surface-muted hover:text-content' }}"
+            >
+                {{ $tab['label'] }}
+            </a>
+        @endforeach
+
+    </div>
+
+    {{-- Search --}}
+    <form method="GET" action="{{ route('properties.index') }}" class="flex items-center gap-2">
+
+        @if($status)
+            <input type="hidden" name="status" value="{{ $status }}">
+        @endif
+
+        <div class="relative w-full sm:w-64">
+
+            <x-ui.icon name="search" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-subtle" />
 
             <input
-
-                type="text"
-
-                placeholder="Search property, owner or address..."
-
-                class="w-full rounded-2xl border border-slate-700 bg-slate-950 py-4 pl-14 pr-5 text-white placeholder:text-slate-500 focus:border-blue-500 focus:outline-none">
+                type="search"
+                name="q"
+                value="{{ $search }}"
+                placeholder="Search name, address or owner…"
+                class="input h-9 !pl-9"
+                aria-label="Search properties"
+            >
 
         </div>
 
-        <button
-            class="rounded-2xl border border-slate-700 bg-slate-800 px-6 py-4 text-white transition hover:bg-slate-700">
+        <button type="submit" class="btn btn-secondary btn-sm">Search</button>
 
-            Filters
+        @if($search !== '')
+            <a href="{{ route('properties.index', array_filter(['status' => $status])) }}"
+               class="btn btn-ghost btn-sm"
+               aria-label="Clear search">
+                <x-ui.icon name="close" class="h-4 w-4" />
+            </a>
+        @endif
 
-        </button>
-
-        <button
-            class="rounded-2xl border border-slate-700 bg-slate-800 px-6 py-4 text-white transition hover:bg-slate-700">
-
-            Sort
-
-        </button>
-
-    </div>
+    </form>
 
 </div>

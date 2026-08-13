@@ -1,5 +1,7 @@
 import './bootstrap';
 import './dashboards';
+import './address-autocomplete';
+import './solar-designer';
 
 import Alpine from 'alpinejs';
 
@@ -21,9 +23,40 @@ window.propertyWizard = function(config) {
         latitude: config.initialLatitude || '',
         longitude: config.initialLongitude || '',
         placeId: config.initialPlaceId || '',
-        mapMessage: 'Ready for API lookup.',
+        formattedAddress: '',
+        mapImageUrl: config.mapImageUrl || '',
+        mapMessage: 'Search for the address in the previous step to place it on the map.',
         init() {
             this.selectStep(this.step);
+        },
+
+        /** True once the address step produced usable coordinates. */
+        get hasCoordinates() {
+            return this.latitude !== '' && this.longitude !== '' &&
+                this.latitude !== null && this.longitude !== null;
+        },
+
+        /** Satellite preview, served through our own proxy route. */
+        get mapPreviewSrc() {
+            if (!this.hasCoordinates || !this.mapImageUrl) {
+                return '';
+            }
+
+            const url = new URL(this.mapImageUrl, window.location.origin);
+            url.searchParams.set('lat', this.latitude);
+            url.searchParams.set('lng', this.longitude);
+            url.searchParams.set('zoom', 19);
+            url.searchParams.set('size', 'large');
+
+            return url.toString();
+        },
+
+        get googleMapsUrl() {
+            if (!this.hasCoordinates) {
+                return '#';
+            }
+
+            return `https://www.google.com/maps/search/?api=1&query=${this.latitude},${this.longitude}`;
         },
         selectStep(step) {
             this.step = step;
@@ -41,13 +74,6 @@ window.propertyWizard = function(config) {
         prev() {
             this.selectStep(Math.max(this.step - 1, 1));
         },
-        lookupCoordinates() {
-            if (!this.address) {
-                this.mapMessage = 'Enter the address in step 3 first.';
-                return;
-            }
-            this.mapMessage = 'API lookup stub: replace with your address lookup integration.';
-        },
         applyLocation(location) {
             this.address = location.address || this.address;
             this.city = location.city || '';
@@ -57,7 +83,8 @@ window.propertyWizard = function(config) {
             this.latitude = location.latitude ?? this.latitude;
             this.longitude = location.longitude ?? this.longitude;
             this.placeId = location.placeId || '';
-            this.mapMessage = 'Location selected. Solar and weather data will be fetched when you save.';
+            this.formattedAddress = location.formattedAddress || '';
+            this.mapMessage = 'Location confirmed. Solar and weather data are fetched when you save.';
         },
     };
 };

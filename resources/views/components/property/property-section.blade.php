@@ -1,38 +1,36 @@
-<div class="rounded-3xl border border-slate-800 bg-slate-900 shadow-xl">
+<x-property.section
+    title="Property"
+    description="Basic details about the site."
+>
 
-    {{-- Header --}}
-    <div class="border-b border-slate-800 p-6">
-        <h2 class="text-2xl font-bold text-white">
-            🏡 Property Information
-        </h2>
+    <div class="grid gap-4 sm:grid-cols-2">
 
-        <p class="mt-2 text-slate-400">
-            Basic information about the property.
-        </p>
-    </div>
-
-    <div class="space-y-6 p-6">
+        <x-property.field
+            name="property_name"
+            label="Property name"
+            model="propertyName"
+            placeholder="Green Valley Residence"
+            required
+        />
 
         <div>
-            <label class="mb-2 block text-slate-300">
-                Property Name
-            </label>
+            <label for="status" class="block text-sm font-medium text-content">Status</label>
 
-            <input
-                type="text"
-                name="property_name"
-                x-model="propertyName"
-                value="{{ old('property_name') }}"
-                placeholder="Green Valley Residence"
-                class="w-full rounded-2xl border border-slate-700 bg-slate-950 p-4 text-white focus:border-blue-500 focus:outline-none">
+            <select id="status" name="status" x-model="status" class="input mt-1.5">
+                @foreach(['Pending', 'Analyzing', 'Completed'] as $option)
+                    <option value="{{ $option }}" @selected(old('status', 'Pending') === $option)>
+                        {{ $option }}
+                    </option>
+                @endforeach
+            </select>
 
-            @error('property_name')
-                <p class="mt-2 text-sm text-red-400">{{ $message }}</p>
+            @error('status')
+                <p class="mt-1.5 text-sm text-danger">{{ $message }}</p>
+            @else
+                <p class="mt-1.5 text-xs text-content-subtle">New properties normally start as Pending.</p>
             @enderror
         </div>
 
-        <input type="hidden" name="status" x-model="status" value="Pending">
-
     </div>
 
-</div>
+</x-property.section>

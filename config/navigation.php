@@ -3,43 +3,29 @@
 return [
 
     [
-        'title'=>'Dashboard',
-        'url'=>'dashboard'
+        'group' => 'Overview',
+        'items' => [
+            ['title' => 'Dashboard', 'url' => 'dashboard', 'icon' => 'dashboard'],
+            ['title' => 'Properties', 'url' => 'properties.index', 'icon' => 'building'],
+            ['title' => 'Maps', 'url' => 'maps', 'icon' => 'map'],
+        ],
     ],
 
     [
-        'title'=>'Properties',
-        'url' => 'properties.index',
+        'group' => 'Solar',
+        'items' => [
+            ['title' => 'Solar Designer', 'url' => 'solar', 'icon' => 'sun'],
+            ['title' => 'Reports', 'url' => 'reports', 'icon' => 'chart'],
+            ['title' => 'AI Assistant', 'url' => 'ai', 'icon' => 'sparkles'],
+        ],
     ],
 
     [
-        'title'=>'Maps',
-        'url'=>'maps'
-    ],
-
-    [
-        'title'=>'Solar Designer',
-        'url'=>'solar'
-    ],
-
-    [
-        'title'=>'Reports',
-        'url'=>'reports'
-    ],
-
-    [
-        'title'=>'AI Assistant',
-        'url'=>'ai'
-    ],
-
-    [
-        'title'=>'Billing',
-        'url'=>'billing'
-    ],
-
-     [
-        'title'=>'Settings',
-        'url'=>'settings'
+        'group' => 'Account',
+        'items' => [
+            ['title' => 'Billing', 'url' => 'billing', 'icon' => 'card'],
+            ['title' => 'Settings', 'url' => 'settings', 'icon' => 'settings'],
+        ],
     ],
 
 ];

@@ -1,92 +1,66 @@
-<div class="rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl p-8">
+@props(['property'])
 
-    <h2 class="text-3xl font-black text-white">
+@php
+    $a = $property->solarAssessment;
 
-        📅 Activity Timeline
+    // Built from real timestamps only — no invented history.
+    $events = collect([
+        [
+            'title' => 'Property created',
+            'at' => $property->created_at,
+            'icon' => 'plus',
+            'tone' => 'muted',
+        ],
+        $a ? [
+            'title' => 'Solar assessment completed',
+            'at' => $a->created_at,
+            'icon' => 'sun',
+            'tone' => 'accent',
+        ] : null,
+        $a?->last_synced_at ? [
+            'title' => 'Solar data synced',
+            'at' => $a->last_synced_at,
+            'icon' => 'sparkles',
+            'tone' => 'muted',
+        ] : null,
+        $property->updated_at && $property->updated_at->ne($property->created_at) ? [
+            'title' => 'Property updated',
+            'at' => $property->updated_at,
+            'icon' => 'settings',
+            'tone' => 'muted',
+        ] : null,
+    ])->filter()->sortByDesc('at')->values();
+@endphp
 
-    </h2>
+<div class="card overflow-hidden">
 
-    <div class="relative mt-10 border-l-2 border-blue-500 pl-8 space-y-10">
+    <div class="border-b border-line px-5 py-4">
+        <h2 class="text-sm font-medium text-content">Activity</h2>
+    </div>
 
-        <div class="relative">
+    <div class="p-5">
 
-            <span class="absolute -left-11 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-xs">
-                ✓
-            </span>
+        <ol class="relative space-y-5 border-l border-line pl-6">
 
-            <h3 class="font-bold text-white">
+            @foreach($events as $event)
+                <li class="relative">
 
-                AI Analysis Complete
+                    <span class="absolute -left-[31px] grid h-[22px] w-[22px] place-items-center rounded-full ring-4 ring-surface
+                                 {{ $event['tone'] === 'accent' ? 'bg-accent text-accent-contrast' : 'bg-surface-muted text-content-subtle' }}">
+                        <x-ui.icon :name="$event['icon']" class="h-3 w-3" />
+                    </span>
 
-            </h3>
+                    <p class="text-sm font-medium text-content">{{ $event['title'] }}</p>
 
-            <p class="text-slate-400">
+                    <p class="mt-0.5 text-xs text-content-muted">
+                        {{ $event['at']?->format('j M Y, g:i A') }}
+                        <span class="text-content-subtle">· {{ $event['at']?->diffForHumans() }}</span>
+                    </p>
 
-                Today • 09:30 AM
+                </li>
+            @endforeach
 
-            </p>
-
-        </div>
-
-        <div class="relative">
-
-            <span class="absolute -left-11 flex h-6 w-6 items-center justify-center rounded-full bg-blue-500">
-                📄
-            </span>
-
-            <h3 class="font-bold text-white">
-
-                Proposal Generated
-
-            </h3>
-
-            <p class="text-slate-400">
-
-                Yesterday
-
-            </p>
-
-        </div>
-
-        <div class="relative">
-
-            <span class="absolute -left-11 flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500">
-                🏡
-            </span>
-
-            <h3 class="font-bold text-white">
-
-                Site Inspection
-
-            </h3>
-
-            <p class="text-slate-400">
-
-                3 Days Ago
-
-            </p>
-
-        </div>
-
-        <div class="relative">
-
-            <span class="absolute -left-11 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500">
-                +
-            </span>
-
-            <h3 class="font-bold text-white">
-
-                Property Created
-
-            </h3>
-
-            <p class="text-slate-400">
-
-                Last Week
-
-            </p>
-
-        </div>
+        </ol>
 
     </div>
 

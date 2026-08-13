@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StorePropertyRequest;
 use App\Models\Customer;
 use App\Models\Property;
+use App\Models\SolarAssessment;
 use App\Services\PropertyInsightsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -14,21 +15,45 @@ class PropertyController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $properties = Property::latest()->paginate(9);
+        $search = trim((string) $request->query('q', ''));
+        $status = $request->query('status');
 
-        // Dashboard Statistics
+        $properties = Property::query()
+            ->with(['customer', 'solarAssessment'])
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('property_name', 'like', "%{$search}%")
+                        ->orWhere('address', 'like', "%{$search}%")
+                        ->orWhere('city', 'like', "%{$search}%")
+                        ->orWhereHas('customer', function ($c) use ($search) {
+                            $c->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        });
+                });
+            })
+            ->when(in_array($status, ['Pending', 'Analyzing', 'Completed'], true),
+                fn ($query) => $query->where('status', $status))
+            ->latest()
+            ->paginate(9)
+            ->withQueryString();
+
         $stats = [
             'totalProperties' => Property::count(),
             'pendingProperties' => Property::where('status', 'Pending')->count(),
+            'analyzingProperties' => Property::where('status', 'Analyzing')->count(),
             'completedProperties' => Property::where('status', 'Completed')->count(),
+            // Score lives on solar_assessments, not properties
+            'averageScore' => round(SolarAssessment::avg('solar_score') ?? 0),
         ];
 
-        return view('properties.index', compact(
-            'properties',
-            'stats'
-        ));
+        return view('properties.index', [
+            'properties' => $properties,
+            'stats' => $stats,
+            'search' => $search,
+            'status' => $status,
+        ]);
     }
 
     /**
@@ -93,6 +118,8 @@ class PropertyController extends Controller
      */
     public function show(Property $property)
     {
+        $property->load(['customer', 'solarAssessment', 'weatherRecords']);
+
         return view('properties.show', compact('property'));
     }
 

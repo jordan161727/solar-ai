@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Customer;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,47 +19,37 @@ class PropertyFactory extends Factory
     public function definition(): array
     {
         return [
-            'property_code'=>'PROP-'.fake()->unique()->numberBetween(1000,9999),
+            'customer_id' => Customer::factory(),
 
-            'owner_name'=>fake()->name(),
+            'property_name' => fake()->randomElement([
+                'Residence',
+                'Warehouse',
+                'Commercial Building',
+                'Rest House',
+            ]).' '.fake()->numberBetween(1, 200),
 
-            'email'=>fake()->safeEmail(),
+            'address' => fake()->streetAddress(),
 
-            'phone'=>fake()->phoneNumber(),
+            'city' => 'San Jose Del Monte',
 
-            'address'=>fake()->streetAddress(),
+            'province' => 'Bulacan',
 
-            'barangay'=>'Barangay '.fake()->numberBetween(1,20),
+            'postal_code' => '3023',
 
-            'city'=>'San Jose Del Monte',
+            'country' => 'Philippines',
 
-            'province'=>'Bulacan',
+            // Spread around San Jose Del Monte, Bulacan
+            'latitude' => fake()->randomFloat(7, 14.7600, 14.8600),
 
-            'zipcode'=>'3023',
+            'longitude' => fake()->randomFloat(7, 121.0200, 121.0900),
 
-            'latitude'=>14.8139,
+            'place_id' => null,
 
-            'longitude'=>121.0458,
-
-            'roof_type'=>fake()->randomElement([
-                'Metal',
-                'Concrete',
-                'Tile'
-            ]),
-
-            'roof_area'=>fake()->numberBetween(70,220),
-
-            'solar_score'=>fake()->numberBetween(70,99),
-
-            'estimated_generation'=>fake()->numberBetween(6000,18000),
-
-            'estimated_savings'=>fake()->numberBetween(80000,350000),
-
-            'status'=>fake()->randomElement([
+            'status' => fake()->randomElement([
                 'Pending',
+                'Analyzing',
                 'Completed',
-                'Installed'
-            ])
+            ]),
         ];
     }
 }

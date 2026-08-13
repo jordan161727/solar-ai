@@ -4,6 +4,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PlacesController;
+use App\Http\Controllers\MapImageController;
+use App\Http\Controllers\SolarDesignController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,14 +57,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::view('/maps', 'maps.index')
         ->name('maps');
 
+    // Address autocomplete + satellite preview, proxied so the Google API key
+    // is never exposed to the browser.
+    Route::get('/places/autocomplete', [PlacesController::class, 'autocomplete'])
+        ->middleware('throttle:60,1')
+        ->name('places.autocomplete');
+
+    Route::get('/places/details', [PlacesController::class, 'details'])
+        ->middleware('throttle:60,1')
+        ->name('places.details');
+
+    Route::get('/map-image', MapImageController::class)
+        ->middleware('throttle:120,1')
+        ->name('map.image');
+
     /*
     |--------------------------------------------------------------------------
     | Solar Designer
     |--------------------------------------------------------------------------
     */
 
-    Route::view('/solar', 'solar.index')
+    Route::get('/solar', [SolarDesignController::class, 'index'])
         ->name('solar');
+
+    Route::get('/solar/{property}', [SolarDesignController::class, 'design'])
+        ->name('solar.design');
+
+    Route::post('/solar/{property}', [SolarDesignController::class, 'store'])
+        ->name('solar.design.store');
 
     /*
     |--------------------------------------------------------------------------

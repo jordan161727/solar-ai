@@ -1,321 +1,143 @@
-<div class="rounded-3xl border border-slate-800 bg-slate-900 overflow-hidden shadow-xl">
+@props(['properties'])
 
-    <!-- Header -->
-    <div class="flex items-center justify-between border-b border-slate-800 px-8 py-6">
+<div class="card overflow-hidden">
+
+    {{-- Header --}}
+    <div class="flex items-center justify-between gap-4 border-b border-line px-5 py-4">
 
         <div>
-
-            <h2 class="text-2xl font-bold text-white">
-                Recent Properties
-            </h2>
-
-            <p class="mt-1 text-slate-400">
-                Latest properties analyzed by AI
-            </p>
-
+            <h2 class="text-sm font-medium text-content">Recent properties</h2>
+            <p class="mt-0.5 text-xs text-content-muted">Latest additions to your pipeline</p>
         </div>
 
-        <button
-            class="rounded-xl border border-slate-700 bg-slate-800 px-5 py-2 text-white transition hover:bg-slate-700">
-
-            View All
-
-        </button>
+        @if(Route::has('properties.index'))
+            <a href="{{ route('properties.index') }}" class="btn btn-secondary btn-sm">
+                View all
+            </a>
+        @endif
 
     </div>
 
-    <!-- Properties -->
+    @if($properties->isEmpty())
 
-    <div class="divide-y divide-slate-800">
+        <div class="px-5 py-14 text-center">
 
-        @foreach([
-        [
-            'name'=>'Green Valley Residence',
-            'location'=>'Marilao, Bulacan',
-            'status'=>'Verified',
-            'score'=>94,
-            'roof'=>'148㎡',
-            'saving'=>'₱2.4M'
-        ],
-        [
-            'name'=>'Sunrise Estate',
-            'location'=>'Quezon City',
-            'status'=>'Pending',
-            'score'=>82,
-            'roof'=>'126㎡',
-            'saving'=>'₱1.9M'
-        ],
-        [
-            'name'=>'Royal Garden',
-            'location'=>'Pasig City',
-            'status'=>'Inspection',
-            'score'=>76,
-            'roof'=>'132㎡',
-            'saving'=>'₱1.6M'
-        ],
-        [
-            'name'=>'Palm Heights',
-            'location'=>'Taguig',
-            'status'=>'Verified',
-            'score'=>97,
-            'roof'=>'180㎡',
-            'saving'=>'₱3.2M'
-        ],
-        [
-            'name'=>'Mountain View',
-            'location'=>'Antipolo',
-            'status'=>'Proposal',
-            'score'=>88,
-            'roof'=>'156㎡',
-            'saving'=>'₱2.8M'
-        ]
-        ] as $property)
-
-        <div
-            class="group transition duration-300 hover:bg-slate-800/50">
-
-            <div class="grid grid-cols-12 items-center gap-6 p-6">
-
-                <!-- Image -->
-
-                <div class="col-span-12 lg:col-span-1">
-
-                    <div
-                        class="flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-3xl shadow-lg">
-
-                        🏡
-
-                    </div>
-
-                </div>
-
-                <!-- Info -->
-
-                <div class="col-span-12 lg:col-span-3">
-
-                    <h3
-                        class="text-lg font-semibold text-white">
-
-                        {{ $property['name'] }}
-
-                    </h3>
-
-                    <p
-                        class="mt-1 text-slate-400">
-
-                        📍 {{ $property['location'] }}
-
-                    </p>
-
-                </div>
-
-                <!-- Status -->
-
-                <div class="col-span-6 lg:col-span-2">
-
-                    @php
-
-                        $color='bg-yellow-500';
-
-                        $text='text-yellow-400';
-
-                        if($property['status']=='Verified'){
-
-                            $color='bg-green-500';
-
-                            $text='text-green-400';
-
-                        }
-
-                        if($property['status']=='Inspection'){
-
-                            $color='bg-red-500';
-
-                            $text='text-red-400';
-
-                        }
-
-                        if($property['status']=='Proposal'){
-
-                            $color='bg-blue-500';
-
-                            $text='text-blue-400';
-
-                        }
-
-                    @endphp
-
-                    <span
-                        class="inline-flex items-center gap-2 rounded-full bg-slate-800 px-4 py-2">
-
-                        <span
-                            class="h-2 w-2 rounded-full {{ $color }}"></span>
-
-                        <span
-                            class="{{ $text }} font-medium">
-
-                            {{ $property['status'] }}
-
-                        </span>
-
-                    </span>
-
-                </div>
-
-                <!-- AI Score -->
-
-                <div class="col-span-6 lg:col-span-2">
-
-                    <p class="text-sm text-slate-500">
-
-                        AI Score
-
-                    </p>
-
-                    <div class="mt-2">
-
-                        <div
-                            class="h-2 overflow-hidden rounded-full bg-slate-700">
-
-                            <div
-                                class="h-full rounded-full bg-gradient-to-r from-green-400 to-cyan-400"
-                                style="width:{{ $property['score'] }}%">
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <p
-                        class="mt-2 font-semibold text-green-400">
-
-                        {{ $property['score'] }}%
-
-                    </p>
-
-                </div>
-
-                <!-- Roof -->
-
-                <div class="hidden lg:block">
-
-                    <p
-                        class="text-sm text-slate-500">
-
-                        Roof Area
-
-                    </p>
-
-                    <p
-                        class="mt-2 text-lg font-semibold text-white">
-
-                        {{ $property['roof'] }}
-
-                    </p>
-
-                </div>
-
-                <!-- Savings -->
-
-                <div class="hidden lg:block">
-
-                    <p
-                        class="text-sm text-slate-500">
-
-                        Est. Savings
-
-                    </p>
-
-                    <p
-                        class="mt-2 text-lg font-semibold text-green-400">
-
-                        {{ $property['saving'] }}
-
-                    </p>
-
-                </div>
-
-                <!-- Actions -->
-
-                <div
-                    class="col-span-12 lg:col-span-2">
-
-                    <div
-                        class="flex justify-end gap-3">
-
-                        <button
-                            class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-white transition hover:bg-slate-700">
-
-                            View
-
-                        </button>
-
-                        <button
-                            class="rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-500">
-
-                            Analyze
-
-                        </button>
-
-                    </div>
-
-                </div>
-
+            <div class="mx-auto grid h-10 w-10 place-items-center rounded-full bg-surface-muted">
+                <x-ui.icon name="building" class="h-5 w-5 text-content-subtle" />
             </div>
 
-        </div>
+            <p class="mt-3 text-sm font-medium text-content">No properties yet</p>
+            <p class="mt-1 text-sm text-content-muted">Add a property to run its first solar assessment.</p>
 
-        @endforeach
-
-    </div>
-
-    <!-- Footer -->
-
-    <div
-        class="flex items-center justify-between border-t border-slate-800 px-8 py-5">
-
-        <p
-            class="text-slate-400">
-
-            Showing
-
-            <span class="font-semibold text-white">
-
-                5
-
-            </span>
-
-            of
-
-            <span class="font-semibold text-white">
-
-                1,284
-
-            </span>
-
-            properties
-
-        </p>
-
-        <div class="flex gap-2">
-
-            <button
-                class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-white hover:bg-slate-700">
-
-                Previous
-
-            </button>
-
-            <button
-                class="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-500">
-
-                Next
-
-            </button>
+            @if(Route::has('properties.create'))
+                <a href="{{ route('properties.create') }}" class="btn btn-primary btn-md mt-4">
+                    <x-ui.icon name="plus" class="h-4 w-4" />
+                    Add property
+                </a>
+            @endif
 
         </div>
 
-    </div>
+    @else
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-sm">
+
+                <thead>
+                    <tr class="border-b border-line text-left">
+                        <th class="eyebrow px-5 py-2.5 font-medium">Property</th>
+                        <th class="eyebrow px-5 py-2.5 font-medium">Customer</th>
+                        <th class="eyebrow px-5 py-2.5 font-medium">Status</th>
+                        <th class="eyebrow px-5 py-2.5 text-right font-medium">Score</th>
+                        <th class="eyebrow px-5 py-2.5 text-right font-medium">Est. savings</th>
+                        <th class="eyebrow px-5 py-2.5 text-right font-medium">Added</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-line">
+
+                    @foreach($properties as $property)
+
+                        @php
+                            $assessment = $property->solarAssessment;
+                            $customer = $property->customer;
+                        @endphp
+
+                        <tr class="transition-colors hover:bg-surface-muted/60">
+
+                            {{-- Property --}}
+                            <td class="px-5 py-3">
+                                <div class="flex items-center gap-3">
+
+                                    <span class="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface-muted">
+                                        <x-ui.icon name="building" class="h-4 w-4 text-content-subtle" />
+                                    </span>
+
+                                    <div class="min-w-0">
+                                        @if(Route::has('properties.show'))
+                                            <a href="{{ route('properties.show', $property) }}"
+                                               class="block truncate rounded font-medium text-content transition-colors hover:text-accent">
+                                                {{ $property->property_name ?: 'Untitled property' }}
+                                            </a>
+                                        @else
+                                            <p class="truncate font-medium text-content">
+                                                {{ $property->property_name ?: 'Untitled property' }}
+                                            </p>
+                                        @endif
+
+                                        <p class="mt-0.5 truncate text-xs text-content-muted">
+                                            {{ collect([$property->city, $property->province])->filter()->implode(', ') ?: $property->address }}
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </td>
+
+                            {{-- Customer --}}
+                            <td class="whitespace-nowrap px-5 py-3 text-content-muted">
+                                {{ $customer ? trim($customer->first_name.' '.$customer->last_name) : '—' }}
+                            </td>
+
+                            {{-- Status --}}
+                            <td class="px-5 py-3">
+                                <x-status-badge :status="$property->status" />
+                            </td>
+
+                            {{-- Score --}}
+                            <td class="px-5 py-3 text-right">
+                                @if($assessment)
+                                    <div class="flex items-center justify-end gap-2">
+                                        <div class="hidden h-1.5 w-14 overflow-hidden rounded-full bg-surface-muted sm:block">
+                                            <div class="h-full rounded-full bg-accent" style="width:{{ $assessment->solar_score }}%"></div>
+                                        </div>
+                                        <span class="tabular font-medium text-content">{{ $assessment->solar_score }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-content-subtle">—</span>
+                                @endif
+                            </td>
+
+                            {{-- Savings --}}
+                            <td class="whitespace-nowrap px-5 py-3 text-right tabular font-medium text-content">
+                                {{ $assessment ? '₱'.number_format($assessment->estimated_savings) : '—' }}
+                            </td>
+
+                            {{-- Added --}}
+                            <td class="whitespace-nowrap px-5 py-3 text-right text-content-muted">
+                                {{ $property->created_at?->diffForHumans(short: true) }}
+                            </td>
+
+                        </tr>
+
+                    @endforeach
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    @endif
 
 </div>
